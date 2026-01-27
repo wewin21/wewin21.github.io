@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>21点概率分析工具操作指南</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #1a3a8f 0%, #2a5bd7 100%);
+            color: white;
+            padding: 30px 40px;
+            border-bottom: 5px solid #ffc107;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .version-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 8px;
+            min-width: 200px;
+        }
+        
+        .version {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .update-date {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+        
+        .disclaimer {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 15px 20px;
+            margin: 25px 40px 30px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.95rem;
+        }
+        
+        .content-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 0 20px 30px;
+        }
+        
+        .main-content {
+            flex: 1;
+            min-width: 300px;
+            padding-top: 20px;
+        }
+        
+        section {
+            margin-bottom: 40px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #eaeef5;
+        }
+        
+        section:last-of-type {
+            border-bottom: none;
+        }
+        
+        h2 {
+            color: #1a3a8f;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e6ef;
+            display: flex;
+            align-items: center;
+        }
+        
+        h2:before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 25px;
+            background-color: #2a5bd7;
+            margin-right: 12px;
+            border-radius: 4px;
+        }
+        
+        h3 {
+            color: #2a5bd7;
+            font-size: 1.4rem;
+            margin: 25px 0 15px;
+        }
+        
+        h4 {
+            color: #3a6ae8;
+            font-size: 1.1rem;
+            margin: 20px 0 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 20px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .feature-card {
+            background-color: #f8f9ff;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #2a5bd7;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(42, 91, 215, 0.1);
+        }
+        
+        .feature-card h4 {
+            margin-top: 0;
+            color: #1a3a8f;
+            font-size: 1.2rem;
+        }
+        
+        .card-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card-table th {
+            background-color: #2a5bd7;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .card-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #eaeef5;
+        }
+        
+        .card-table tr:nth-child(even) {
+            background-color: #f8f9ff;
+        }
+        
+        .card-table tr:hover {
+            background-color: #f0f4ff;
+        }
+        
+        .suit-header {
+            font-weight: 600;
+            background-color: #f0f4ff !important;
+        }
+        
+        /* 红桃和方片的红色样式 */
+        .red-suit {
+            color: #e53935 !important;
+            font-weight: 600;
+        }
+        
+        .red-symbol {
+            color: #e53935;
+        }
+        
+        .code-example {
+            background-color: #f8f9ff;
+            border-left: 4px solid #2a5bd7;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+        }
+        
+        .tip-box {
+            background-color: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+            font-size: 0.95rem;
+        }
+        
+        .warning-box {
+            background-color: #fff8e1;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+            font-size: 0.95rem;
+        }
+        
+        .system-requirements {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .req-item {
+            background-color: #f8f9ff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e0e6ef;
+        }
+        
+        .req-item h4 {
+            margin-top: 0;
+            color: #1a3a8f;
+        }
+        
+        .image-placeholder {
+            margin: 25px 0;
+            text-align: center;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background-color: #f8f9fa;
+            padding: 15px;
+            clear: both;
+            display: block;
+        }
+
+        .screenshot {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            border: 1px solid #e0e6ef;
+            display: block;
+            margin: 0 auto 15px auto;
+        }
+
+        .image-caption {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+            text-align: center;
+            display: block;
+            clear: both;
+        }
+        
+        .contact-info {
+            background: linear-gradient(135deg, #f8f9ff 0%, #eef2ff 100%);
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .contact-info h3 {
+            color: #1a3a8f;
+            margin-top: 0;
+        }
+        
+        .contact-details {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            padding: 0 40%;
+        }
+        
+        .contact-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .contact-icon {
+            font-size: 1.8rem;
+            color: #2a5bd7;
+            margin-bottom: 10px;
+        }
+        
+        /* 新增：统一联系信息中的链接字体大小 */
+        .contact-item a {
+            font-size: 1rem;
+            color: #2a5bd7;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .contact-item a:hover {
+            color: #1a3a8f;
+            text-decoration: underline;
+        }
+        
+        footer {
+            background-color: #1a1a2e;
+            color: #ddd;
+            padding: 30px 40px;
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        
+        .copyright {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .tagline {
+            font-style: italic;
+            color: #ffc107;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .version-info {
+                align-items: flex-start;
+                margin-top: 15px;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .contact-details {
+                flex-direction: column;
+                gap: 30px;
+                padding: 0;
+            }
+            
+            .contact-item {
+                padding: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div>
+                    <h1>21点概率分析工具操作指南</h1>
+                    <p>数学优势转化为长期赢面 · 科学决策，理性博弈</p>
+                </div>
+                <div class="version-info">
+                    <div class="version">版本：1.0</div>
+                    <div class="update-date">最近更新：2025年12月28日</div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="disclaimer">
+            <strong>重要提示：</strong> 本软件通过持续的概率计算分析，将数学优势转化为您的长期赢面；数学为王，但情绪控制和投资管理仍为首要。
+        </div>
+        
+        <div class="content-wrapper">
+            <main class="main-content">
+                <section id="section1">
+                    <h2>1. 软件概述</h2>
+                    <p>本软件是一款<strong>21点（Blackjack）分析工具</strong>，通过精准的概率计算，帮助优化游戏策略，提高胜率。</p>
+                    
+                    <h3>主要功能包括：</h3>
+                    <div class="feature-list">
+                        <div class="feature-card">
+                            <h4>记录已发牌</h4>
+                            <p>记录每局游戏的已发牌，统计每种花色、每种牌值的数量，显示最优决策下的输赢情况，给玩家带来直观显示，便于规律分析。</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>各类指标计算</h4>
+                            <p>集成Hi-Lo、Hi-OptII、OmegaII记牌系统，实时计算高低牌真数，帮助玩家调整下注金额和策略。</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>牌型概率计算</h4>
+                            <p>根据剩余牌堆，计算对子、顺子、同花、19-21点等牌型的出现概率。</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>爆牌概率计算</h4>
+                            <p>根据玩家和庄家发牌情况进行准确计算爆牌概率，提供是否要牌或停牌的有利决策。</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>收益期望对比</h4>
+                            <p>计算玩家在"要牌（Hit）"、"停牌（Stand）"时的期望收益，通过对比，帮助选择最优策略。</p>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="section2">
+                    <h2>2. 界面与操作说明</h2>
+                    
+                    <h3 id="section2-1">2.1 主界面</h3>
+                    <div class="image-placeholder">
+                        <img src="main_zh.png" alt="21点概率分析工具主界面示意图" class="screenshot">
+                        <p class="image-caption">图1: 软件主界面布局</p>
+                    </div>
+                    
+                    <h4>（1）出牌录入区</h4>
+                    <p>如图A区区域，手动输入已发牌的牌代码。各牌录入代码规则如下：数字1至13分别表示♠A-♠K，14-26分别表示<span class="red-symbol">♥</span>A-<span class="red-symbol">♥</span>K,27至39分别表示<span class="red-symbol">♦</span>A-<span class="red-symbol">♦</span>K，40至52分别表示♣A-♣K。</p>
+                    
+                    <div class="code-example">
+                        示例：要录入♠A ♠3 <span class="red-symbol">♥</span>2 <span class="red-symbol">♥</span>10 <span class="red-symbol">♦</span>Q ♣K五张牌。输入：1、3、15、23、38、52即可。
+                    </div>
+                    
+                    <table class="card-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>A</th>
+                                <th>2</th>
+                                <th>3</th>
+                                <th>4</th>
+                                <th>5</th>
+                                <th>6</th>
+                                <th>7</th>
+                                <th>8</th>
+                                <th>9</th>
+                                <th>10</th>
+                                <th>J</th>
+                                <th>Q</th>
+                                <th>K</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="suit-header">
+                                <td>♠</td>
+                                <td>1</td>
+                                <td>2</td>
+                                <td>3</td>
+                                <td>4</td>
+                                <td>5</td>
+                                <td>6</td>
+                                <td>7</td>
+                                <td>8</td>
+                                <td>9</td>
+                                <td>10</td>
+                                <td>11</td>
+                                <td>12</td>
+                                <td>13</td>
+                            </tr>
+                            <tr>
+                                <td class="red-suit">♥</td>
+                                <td class="red-suit">14</td>
+                                <td class="red-suit">15</td>
+                                <td class="red-suit">16</td>
+                                <td class="red-suit">17</td>
+                                <td class="red-suit">18</td>
+                                <td class="red-suit">19</td>
+                                <td class="red-suit">20</td>
+                                <td class="red-suit">21</td>
+                                <td class="red-suit">22</td>
+                                <td class="red-suit">23</td>
+                                <td class="red-suit">24</td>
+                                <td class="red-suit">25</td>
+                                <td class="red-suit">26</td>
+                            </tr>
+                            <tr class="suit-header">
+                                <td class="red-suit">♦</td>
+                                <td class="red-suit">27</td>
+                                <td class="red-suit">28</td>
+                                <td class="red-suit">29</td>
+                                <td class="red-suit">30</td>
+                                <td class="red-suit">31</td>
+                                <td class="red-suit">32</td>
+                                <td class="red-suit">33</td>
+                                <td class="red-suit">34</td>
+                                <td class="red-suit">35</td>
+                                <td class="red-suit">36</td>
+                                <td class="red-suit">37</td>
+                                <td class="red-suit">38</td>
+                                <td class="red-suit">39</td>
+                            </tr>
+                            <tr>
+                                <td>♣</td>
+                                <td>40</td>
+                                <td>41</td>
+                                <td>42</td>
+                                <td>43</td>
+                                <td>44</td>
+                                <td>45</td>
+                                <td>46</td>
+                                <td>47</td>
+                                <td>48</td>
+                                <td>49</td>
+                                <td>50</td>
+                                <td>51</td>
+                                <td>52</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="tip-box">
+                        <strong>使用技巧：</strong> 玩家稍加练习，大概练习30分钟，就能够熟练掌握。练习技巧，先掌握好所有黑桃牌代码，红桃、方片、梅花牌只需分别+13、+26、+39即可。
+                    </div>
+                    
+                    <p>录入区分为庄家、玩家两部分录入，按实际出牌顺序逐个录入。当录入前3张牌后，点击爆牌检测按钮，就可以对庄家、玩家的爆破概率和期望进行计算，玩家根据计算结果决定是否要牌。当玩家完整输入一手已发牌后，点击更新。即可把本手的所有牌录入到已发牌表格中，同时系统会立即计算更新各类指标、各类牌型概率，为玩家参与下一手游戏提供有力参考。</p>
+                    
+                    <h4>（2）牌堆管理区</h4>
+                    <p>如图B区区域。实时统计并显示不同花色、不同牌值已发牌的数量，便于按照花色、牌值分析下步出现可能性的大小。</p>
+                    
+                    <h4>（3）牌型概率区</h4>
+                    <p>如图C区区域。第2、3列显示为8副牌时，各牌型的初始概率和出现该牌型的平均局数（取整）；第3、4列各牌型当前概率和出现一次该类牌型的平均局数；当前概率大于初始概率时显示为绿色，反之显示为红色。</p>
+                    
+                    <h4>（4）指标计算区</h4>
+                    <p>如图D区区域。指标计算区集成Hi-Lo、Hi-OptII、OmegaII记牌系统。这3类系统记牌规则请参考本指南第4部分"各类指标记牌规则"，具体决策和运用可网上查询具体了解。当真数值大于1显示绿色，反之显示红色。</p>
+                    
+                    <h4>（5）爆牌概率区</h4>
+                    <p>如图E区区域。显示庄家和玩家的爆牌概率；停牌、要牌时的收益期望与对比，期望>0时对玩家有利，期望为<0时对玩家不利，停牌和要牌两种情况下期望均为负，说明当前停牌和要牌均不利；但通过对比，当要牌期望-停牌>0,应选择要牌，反之停牌，这是总体不利情况下，长期最优的策略。</p>
+                    
+                    <div class="warning-box">
+                        <strong>重要提示：</strong> 当点数小于17点，爆牌概率显示为连续要牌时的爆牌概率；当玩家点数在17点至21点间，显示的爆牌概率再要单牌时的爆牌概率。
+                    </div>
+                    
+                    <h4>（6）牌局显示区</h4>
+                    <p>如图F区、G区区域。显示本轮游戏中每手牌的历史记录，包括庄家、玩家完整牌序牌列，显示对子、三个、同花、顺子、3张和为19点至21点的出现情况，以及庄家与玩家点数输赢情况。</p>
+                    
+                    <div class="tip-box">
+                        <strong>注意：</strong> 此处记录输赢，表示的是玩家最优决策下的理论输赢，不是玩家的实际输赢，即玩家在不爆破的情况，获得最佳点数与庄家实际最终点数的比较输赢。玩家可以通过观察历史牌局相关信息，分析长期胜率趋势，决定下步游戏策略。
+                    </div>
+                    
+                    <h4>（7）其它</h4>
+                    <p>在E区区域下方显示扑克副数、已发牌张数、概率模拟计算次数等信息。</p>
+                    
+                    <h3 id="section2-2">2.2 会员页面</h3>
+                    <p>本软件只支持加密货币DogeCoin支付，玩家根据自身需求开通合适的会员类型，可以使用各类加密钱包或直接从加密货币交易平台直接转帐到Doge收款地址，注意选择DogeCoin主网进行转帐。转帐后，把钱包（或交易所平台）本次交易哈希复制到本软件"会员页面"，交易哈希文本框内，点击"验证开通"按钮，验证后即可开通相应会员。如果第一验证未通过，请稍等几分钟后，再次提交。</p>
+                    
+                    <div class="image-placeholder">
+                        <img src="hash.png" alt="21点概率分析工具主界面" class="screenshot">
+                        <p class="image-caption">会员开通示意图 (hash.png)</p>
+                    </div>
+                    
+                    <h3 id="section2-3">2.3 设置页面</h3>
+                    <p>在使用软件时，首先要在设置页面实际使用几副扑克，默认为8副，这很重要，否则会导致相关计算不准，或者发生异常。本软件对相关数学概率进行了精准计算，只在计算玩家要牌期望时采取了计算机模拟算法，默认模拟次数为10万次，建议设置1万次以上，万次模拟与百万模拟产生误差很小。为此，没必设置太高，以免浪费计算资源，或产生较长的等待时间，影响软件体验。</p>
+                    
+                    <h3 id="section2-4">2.4 其它页面</h3>
+                    <p>其它页面还集成个人信息查看、工具、设置等功能，方便用户使用。</p>
+                </section>
+                
+                <section id="section3">
+                    <h2>3. 基本操作流程</h2>
+                    <ol>
+                        <li>
+                            <strong>开通会员。</strong> 在会员页面，根据需要开通相应类型的会员。
+                        </li>
+                        <li>
+                            <strong>初始化牌堆。</strong> 默认使用 8副牌（416张），可在"设置页面"中调整。
+                        </li>
+                        <li>
+                            <strong>录入已发牌。</strong> 输入前3张牌后，即可点击"爆牌检测"按钮，即可查看相关概率和玩家在停牌和要牌情况下的期望值。根据期望值，软件会显示推荐操作（如"Hit/要牌"）及预期收益，玩家根据情况最终确定是否要牌；完整录入一手所有牌后，点击"数据更新"按钮，即可查看其它相关概率，结合显示历史牌局，确定游戏策略。牌局显示区会逐行显示每手牌的记录。
+                            
+                            <div class="warning-box">
+                                <strong>重要提示：</strong> 按顺序录入，中间不要出现未录入的空单元格，否则无法提交成功。
+                            </div>
+                            
+                            <div class="tip-box">
+                                <strong>小技巧：</strong> 对于有的流行的精简版21点游戏，例如去除扑克牌9的21点游戏，可以把扑克牌9全部提前做为已发牌录入，本软件就能同样适用此类精简版的21点游戏。
+                            </div>
+                        </li>
+                        <li>
+                            <strong>开始新一轮。</strong> 当参与的21点游戏进行了洗牌，也就是新一轮游戏重新开始，此时，"牌局重置"按钮，开始新一轮的记录与计算。
+                        </li>
+                    </ol>
+                </section>
+                
+                <section id="section4">
+                    <h2>4. 各类指标记牌规则</h2>
+                    
+                    <h3 id="section4-1">4.1 Hi-Lo算牌规则</h3>
+                    <ul>
+                        <li><strong>低牌（2-6）：</strong> <span class="highlight">+1</span></li>
+                        <li><strong>中牌（7-9）：</strong> <span class="highlight">0</span></li>
+                        <li><strong>高牌（10-A）：</strong> <span class="highlight">-1</span></li>
+                    </ul>
+                    <p>Running Count（RC）：持续累加已出现牌的赋值（如发2则+1，发K则-1）。</p>
+                    <p><strong>真数（TC） = Running Count ÷ 剩余牌副数</strong>（本软件中副数精确到小数）</p>
+                    
+                    <h3 id="section4-2">4.2 Hi-Opt II算牌规则</h3>
+                    <ul>
+                        <li><strong>次高牌（2,3,6,7）：</strong> <span class="highlight">+1</span></li>
+                        <li><strong>高牌（4,5）：</strong> <span class="highlight">+2</span></li>
+                        <li><strong>中牌（8,9,A）：</strong> <span class="highlight">0</span></li>
+                        <li><strong>低牌（10,J,Q,K）:</strong> <span class="highlight">-2</span></li>
+                    </ul>
+                    <p>Running Count（RC）:每发一张牌，按 Hi-Opt II 规则累加 RC。</p>
+                    
+                    <div class="code-example">
+                        <strong>示例：</strong> 已发牌：4(+2), K(-2), 7(+1), A(0), 5(+2)<br>
+                        RC = +2 -2 +1 +0 +2 = +3<br>
+                        TC = Running Count ÷ 剩余牌副数<br>
+                        RC=+8，剩余2.5 副牌 → TC=+3.2
+                    </div>
+                    
+                    <h3 id="section4-3">4.3 Omega II规则</h3>
+                    <p>采用 不平衡算牌法（Unbalanced Counting），适用于多种游戏规则，尤其是多副牌（6-8副）的场景。</p>
+                    <ul>
+                        <li><strong>牌面（2，3，7）：</strong> <span class="highlight">+1</span></li>
+                        <li><strong>牌面（4，5，6）：</strong> <span class="highlight">+2</span></li>
+                        <li><strong>牌面（8，A）：</strong> <span class="highlight">0</span></li>
+                        <li><strong>牌面（9）：</strong> <span class="highlight">-1</span></li>
+                        <li><strong>牌面（10,J,Q,K）：</strong> <span class="highlight">-2</span></li>
+                    </ul>
+                    
+                    <div class="code-example">
+                        <strong>示例：</strong> 已发牌：4(+2), K(-2), 7(+1), A(0), 6(+2), 9(-1)<br>
+                        RC = +2 -2 +1 +0 +2 -1 = +2
+                    </div>
+                    
+                    <p>Omega II 采用不平衡算牌法（Unbalanced Counting），由于不平衡算牌法的 RC 已经考虑了牌堆深度，无需额外调整。因此无需计算剩余牌副数。</p>
+                    <p><strong>直接使用 Running Count（RC） 作为下注和策略调整依据。</strong></p>
+                    <div class="code-example">
+                        例如：RC=+6 → 直接对应下注策略（而非 ÷剩余副数）。
+                    </div>
+                </section>
+                
+                <section id="section5">
+                    <h2>5. 安装与启动</h2>
+                    
+                    <h3>5.1 系统要求</h3>
+                    <div class="system-requirements">
+                        <div class="req-item">
+                            <h4>操作系统</h4>
+                            <p>Windows 10/11, MacOS, Linux</p>
+                        </div>
+                        <div class="req-item">
+                            <h4>推荐内存</h4>
+                            <p>4GB+</p>
+                        </div>
+                        <div class="req-item">
+                            <h4>网络</h4>
+                            <p>保持互联网连通</p>
+                        </div>
+                    </div>
+                    
+                    <h3>5.2 安装方式</h3>
+                    <p>直接运行可执行文件：</p>
+                    <p>按 操作系统类型下载BlackjackAnalyzer.exe（Windows）、 BlackjackAnalyzer.app（macOS）、BlackjackAnalyzer.bin(ubuntu)本软件。</p>
+                </section>
+                
+                <section id="section6">
+                    <h2>技术支持与反馈</h2>
+                    
+                    <div class="contact-info">
+                        <h3>联系我们</h3>
+                        <div class="contact-details">
+                            <div class="contact-item">
+                                <div class="contact-icon">🌐</div>
+                                <div>
+                                    <strong>官网地址</strong><br>
+                                    <a href="http://www.wewin21.com">www.wewin21.com</a>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <div class="contact-icon">✉️</div>
+                                <div>
+                                    <strong>问题反馈</strong><br>
+                                    <a href="mailto:csr21jack@outlook.com">csr21jack@outlook.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+        
+        <footer>
+            <div class="footer-content">
+                <div class="footer-logo">Blackjack Analyzer</div>
+                <div class="copyright">
+                    <p>© 2025 Blackjack Analyzer Team</p>
+                    <p class="tagline">科学决策，理性博弈</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+        // 平滑滚动到锚点
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 20,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
